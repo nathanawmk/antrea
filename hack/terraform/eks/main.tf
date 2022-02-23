@@ -37,7 +37,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
   # eks module not yet compatible with newer kubenetes provider 1.11.
-  version                = "1.10"
+  version = "1.10"
 }
 
 data "aws_availability_zones" "available" {
@@ -67,6 +67,9 @@ resource "aws_security_group" "all_worker_mgmt" {
       "192.168.0.0/16",
     ]
   }
+  tags = {
+    yor_trace = "58bb7c5a-e1c6-4bdd-8ec1-d015f34b7c30"
+  }
 }
 
 module "vpc" {
@@ -82,6 +85,7 @@ module "vpc" {
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    yor_trace                                     = "b0a4ec2e-4134-419b-8f16-ea95cf2d40c6"
   }
 
   public_subnet_tags = {
@@ -99,19 +103,20 @@ module "eks" {
     Environment = "test"
     GithubRepo  = "terraform-aws-eks"
     GithubOrg   = "terraform-aws-modules"
+    yor_trace   = "96b04601-d5bb-4eb6-a4c6-1ee2806f473d"
   }
 
   vpc_id = module.vpc.vpc_id
 
   worker_groups = [
     {
-      name                          = "worker-group"
-      instance_type                 = var.eks_worker_type
-      additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = var.eks_worker_count
-      public_ip = true
-      iam_instance_profile_name     = var.eks_iam_instance_profile_name
-      key_name = var.eks_key_pair_name
+      name                      = "worker-group"
+      instance_type             = var.eks_worker_type
+      additional_userdata       = "echo foo bar"
+      asg_desired_capacity      = var.eks_worker_count
+      public_ip                 = true
+      iam_instance_profile_name = var.eks_iam_instance_profile_name
+      key_name                  = var.eks_key_pair_name
     },
   ]
 
